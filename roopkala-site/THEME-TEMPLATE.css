@@ -1,0 +1,48 @@
+/* =====================================================================
+   NEW THEME TEMPLATE — copy this file to themes/<name>.css
+   Keep ONLY what you want to change; anything omitted uses base.css.
+   1. (optional) fonts: put an @import for Google Fonts on the very first line.
+   2. Set tokens in :root (light) and :root[data-mode=dark] (dark).
+   3. (optional) restyle any element with normal CSS using the hooks in THEME-GUIDE.md.
+   4. (optional) switch on the decorative slots (.deco-*) to add new elements.
+   5. Register it by adding {id,name} to the SKINS list (see THEME-GUIDE.md).
+   ===================================================================== */
+
+/* @import url('https://fonts.googleapis.com/css2?family=...&display=swap'); */
+
+:root{
+  /* colour */
+  /* --bg:#faf6f0; --card:#fffdf9; --ink:#2b2420; --muted:#8a7d72; --line:#eadfd2; */
+  /* --accent:#b5706b;  (HEX only)   --onacc:#ffffff;   --gold:#c9a96e; */
+  /* --hero-ink:#fff; --hero-overlay:linear-gradient(to top,rgba(0,0,0,.5),transparent 65%); */
+  /* --ok-bg --ok-ink --warn-bg --warn-ink --bad-bg --bad-ink --wa --wa-ink --sold-bg --sold-ink */
+  /* --tab-on-bg --tab-on-ink --tint-mix:0-100  --img-filter */
+
+  /* type */
+  /* --font-body --font-display --h-weight --h-case --h-track */
+  /* --logo-size --logo-track --logo-weight --label-case --label-track --hero-title-size */
+  /* --btn-size --btn-weight --btn-case --btn-track --btn-pad --btn-shadow */
+
+  /* shape + depth */
+  /* --r-card --r-hero --r-panel --r-btn --r-pill --r-input --r-gal --r-thumb --r-small */
+  /* --card-border --panel-border --shadow --shadow-hover --shadow-lg --card-lift --blur */
+
+  /* layout dials */
+  /* --maxw --gutter --grid-min --grid-min-lg --grid-gap --grid-gap-lg --card-ratio --card-w-car --card-align */
+  /* --hero-h --hero-pad --hero-items --hero-justify --hero-align --hero-in --tabs-justify */
+  /* --header-bg --header-border --dur --ease */
+}
+:root[data-mode=dark]{
+  /* dark-mode overrides of the colour tokens above */
+}
+
+/* ---- decorative slots (all hidden until you set display:block) ----
+.deco-bg      fixed page background layer
+.deco-hero-a  inside every hero slide (position:absolute)
+.deco-hero-b  inside every hero slide (position:absolute)
+.deco-card    inside each product card's photo (position:absolute)
+.deco-pdp     inside the product page info panel (position:absolute)
+.deco-footer  above the footer logo
+Example:
+.deco-footer{display:block;width:120px;height:1px;margin-bottom:20px;background:var(--gold)}
+*/

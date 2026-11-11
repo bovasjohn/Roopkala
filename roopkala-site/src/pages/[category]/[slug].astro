@@ -1,0 +1,144 @@
+---
+import NotFound from '../../components/NotFound.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import Base from '../../layouts/Base.astro';
+import { BRAND, PAGE_CACHE, SITE_URL, SUPABASE_ANON_KEY, SUPABASE_URL, configured } from '../../lib/config.ts';
+import { DEFAULT_SETTINGS, getDb, getProductBySlug, getSettings, listProducts, type Product } from '../../lib/data.ts';
+import { digits, inr, md, slugOk, stripMd, waLink } from '../../lib/format.ts';
+import { breadcrumbLd, ldString, productLd } from '../../lib/seo.ts';
+import { tintVars } from '../../lib/tint.ts';
+
+const { category = '', slug = '' } = Astro.params;
+let settings = DEFAULT_SETTINGS;
+let product: Product | null = null;
+let related: Product[] = [];
+let status: 'ok' | 'missing' | 'error' = 'ok';
+
+if (!configured) status = 'error';
+else if (!slugOk(category) || !slugOk(slug)) status = 'missing';
+else {
+  try {
+    const db = getDb();
+    settings = await getSettings(db);
+    const low = settings.general.low_stock;
+    product = await getProductBySlug(db, slug, low);
+    if (!product) status = 'missing';
+    else {
+      const me = product;
+      related = (await listProducts(db, low)).filter((p) => p.id !== me.id && p.category?.id === me.category?.id).slice(0, 6);
+    }
+  } catch (err) {
+    console.error('product load failed', err);
+    status = 'error';
+  }
+}
+
+// One address per product: send old or wrong category addresses to the right one
+if (product && Astro.url.pathname.replace(/\/$/, '') !== product.url) {
+  return Astro.redirect(product.url, 301);
+}
+if (status === 'missing') Astro.response.status = 404;
+if (status === 'error') Astro.response.status = 503;
+Astro.response.headers.set('Cache-Control', status === 'ok' ? PAGE_CACHE : 'no-store');
+
+const origin = SITE_URL || Astro.url.origin;
+const gallery: { full: string; thumb: string }[] =
+  product && product.gallery.length ? product.gallery : [{ full: '/placeholder.svg', thumb: '/placeholder.svg' }];
+const tint = product ? tintVars(product.tintColor, product.tintMode) : null;
+const tintStyle = tint ? `--tint-light:${tint.light};--tint-dark:${tint.dark}` : undefined;
+const title = product ? product.metaTitle || `${product.name} | ${BRAND}` : `Not found | ${BRAND}`;
+const description = product
+  ? product.metaDescription || stripMd(product.description) || `${product.name} — ${inr(product.price)}. ${BRAND}.`
+  : '';
+const pdata = product && {
+  id: product.id, url: product.url, cat: product.categoryName, code: product.code, name: product.name, price: product.price,
+  thumb: product.cover?.thumb ?? '/placeholder.svg',
+  sizeOn: product.sizeOn, colorOn: product.colorOn, sizes: product.sizes, colours: product.colours,
+  variants: product.variants.map((v) => ({ id: v.id, size: v.size, color_name: v.color_name, stock: v.stock })),
+  low: settings.general.low_stock, wa: digits(settings.general.whatsapp), supaUrl: SUPABASE_URL, supaKey: SUPABASE_ANON_KEY,
+};
+const jsonLd = product
+  ? [
+      productLd(product, origin),
+      breadcrumbLd(origin, [
+        { name: 'Home', path: '/' },
+        { name: product.categoryName || 'Shop', path: `/${product.category?.slug ?? 'shop'}` },
+        { name: product.name, path: product.url },
+      ]),
+    ]
+  : [];
+---
+<Base
+  title={title}
+  description={description}
+  page="product"
+  ogType={product ? 'product' : 'website'}
+  image={product?.cover?.full}
+  settings={settings}
+  jsonLd={jsonLd}
+>
+  {!product ? (
+    <NotFound error={status === 'error'} />
+  ) : (
+    <>
+      <a class="back" href={`/${product.category?.slug ?? 'shop'}`}>← Back</a>
+      <div class="pdp" style={tintStyle}>
+        <div class="pdp-in">
+          <div>
+            <div class="gal">
+              <div class="gal-track">
+                {gallery.map((g, i) => (
+                  <img src={g.full} alt={`${product.name} — view ${i + 1}`} width="800" height="800" loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+                ))}
+              </div>
+              <button type="button" class="gal-zoom" aria-label="View photo full screen">⤢</button>
+              {gallery.length > 1 && (
+                <>
+                  <button type="button" class="arw l" data-hs="-1" aria-label="Previous photo">‹</button>
+                  <button type="button" class="arw r" data-hs="1" aria-label="Next photo">›</button>
+                  <div class="gal-dots">{gallery.map((_, i) => <i class={i === 0 ? 'on' : ''}></i>)}</div>
+                </>
+              )}
+            </div>
+            {gallery.length > 1 && (
+              <div class="thumbs">{gallery.map((g, i) => <img class={i === 0 ? 'on' : ''} src={g.thumb} alt="" />)}</div>
+            )}
+          </div>
+
+          <div class="panel">
+            <i class="deco deco-pdp" aria-hidden="true"></i>
+            <div class="cat code">{product.categoryName} · {product.code}</div>
+            <h1>{product.name}</h1>
+            <div class="price" style="font-size:22px">{inr(product.price)}</div>
+            {product.description.trim() && <div class="desc" set:html={md(product.description)} />}
+            <div id="buy">
+              <noscript>
+                <a class="btn wa" style="margin-top:16px" href={waLink(settings.general.whatsapp, `Hello Roopkala, I'm interested in ${product.name} (${product.code}).`)}>Ask about this on WhatsApp</a>
+              </noscript>
+            </div>
+            <div class="lbl">Share</div>
+            <div class="share">
+              <button type="button" data-share="wa">WhatsApp</button>
+              <button type="button" data-share="fb">Facebook</button>
+              <button type="button" data-share="pin">Pinterest</button>
+              <button type="button" data-share="ig">Instagram</button>
+              <button type="button" data-share="copy">Copy link</button>
+            </div>
+          </div>
+        </div>
+
+        {related.length > 0 && (
+          <div class="rel">
+            <div class="sec"><h2>You may also like</h2><span>Swipe →</span></div>
+            <div class="car">{related.map((p) => <ProductCard p={p} />)}</div>
+          </div>
+        )}
+      </div>
+
+      <script type="application/json" id="pdata" set:html={ldString(pdata)} />
+      <script>
+        import '../../scripts/product.ts';
+      </script>
+    </>
+  )}
+</Base>

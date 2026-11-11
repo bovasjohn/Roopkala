@@ -1,0 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+/* =====================================================================
+   THEME: Luxe — warm ivory, muted rose, champagne. Soft, round, quiet.
+   This is the reference theme: every main token is listed explicitly.
+   ===================================================================== */
+:root{
+  --bg:#faf6f0; --card:#fffdf9; --ink:#2b2420; --muted:#8a7d72; --line:#eadfd2;
+  --accent:#b5706b; --onacc:#ffffff; --gold:#c9a96e;
+  --font-body:Inter,system-ui,sans-serif;
+  --font-display:'Cormorant Garamond',Georgia,serif;
+  --r-card:22px; --r-hero:28px; --r-panel:26px; --r-btn:999px; --r-pill:999px; --r-input:14px; --r-gal:28px;
+  --shadow:0 8px 30px rgba(80,55,35,.08);
+  --card-ratio:1/1; --card-lift:-4px;
+}
+:root[data-mode=dark]{
+  --bg:#161211; --card:#201a18; --ink:#f3ebe2; --muted:#a89b8e; --line:#352c28;
+  --accent:#d49a94; --onacc:#2b1a18; --gold:#d8b87d;
+  --shadow:0 8px 30px rgba(0,0,0,.4);
+}
+
+/* a little decoration: a champagne hairline above the footer logo */
+.deco-footer{display:block;width:140px;height:1px;margin-bottom:22px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}

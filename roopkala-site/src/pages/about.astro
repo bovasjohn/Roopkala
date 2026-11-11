@@ -1,0 +1,41 @@
+---
+import NotFound from '../components/NotFound.astro';
+import Socials from '../components/Socials.astro';
+import Base from '../layouts/Base.astro';
+import { BRAND, PAGE_CACHE, configured } from '../lib/config.ts';
+import { DEFAULT_SETTINGS, getDb, getSettings, imgUrl } from '../lib/data.ts';
+import { md, stripMd } from '../lib/format.ts';
+
+let settings = DEFAULT_SETTINGS;
+let failed = !configured;
+if (configured) {
+  try {
+    settings = await getSettings(getDb());
+  } catch (err) {
+    console.error('about load failed', err);
+    failed = true;
+  }
+}
+const about = settings.about;
+const missing = !failed && !about.enabled;
+if (failed) Astro.response.status = 503;
+if (missing) Astro.response.status = 404;
+Astro.response.headers.set('Cache-Control', failed || missing ? 'no-store' : PAGE_CACHE);
+---
+<Base
+  title={`${about.title || 'About'} | ${BRAND}`}
+  description={stripMd(about.body)}
+  page="about"
+  settings={settings}
+>
+  {failed || missing ? (
+    <NotFound error={failed} />
+  ) : (
+    <div style="max-width:640px;margin:40px auto">
+      <h1 style="font-size:46px">{about.title}</h1>
+      {about.image_path && <img class="about-img" src={imgUrl(about.image_path)} alt="" loading="lazy" />}
+      <div class="desc" style="font-size:15px" set:html={md(about.body)} />
+      <div style="margin-top:20px"><Socials social={settings.social} where="about" /></div>
+    </div>
+  )}
+</Base>

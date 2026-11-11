@@ -1,0 +1,11 @@
+---
+import NotFound from '../components/NotFound.astro';
+import Base from '../layouts/Base.astro';
+import { BRAND } from '../lib/config.ts';
+import { DEFAULT_SETTINGS } from '../lib/data.ts';
+
+Astro.response.status = 404;
+---
+<Base title={`Not found | ${BRAND}`} noindex settings={DEFAULT_SETTINGS}>
+  <NotFound />
+</Base>

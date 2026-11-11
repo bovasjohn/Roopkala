@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import { BRAND, configured } from '../lib/config.ts';
+import { DEFAULT_SETTINGS, getDb, getSettings } from '../lib/data.ts';
+import { digits } from '../lib/format.ts';
+
+let settings = DEFAULT_SETTINGS;
+if (configured) {
+  try {
+    settings = await getSettings(getDb());
+  } catch (err) {
+    console.error('settings load failed', err);
+  }
+}
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+<Base title={`Your bag | ${BRAND}`} page="cart" noindex settings={settings}>
+  <div id="cart-root" data-wa={digits(settings.general.whatsapp)}>
+    <noscript><p class="empty">Please turn on JavaScript to see your bag.</p></noscript>
+  </div>
+  <script>
+    import '../scripts/cart.ts';
+  </script>
+</Base>

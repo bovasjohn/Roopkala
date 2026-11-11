@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+/* =====================================================================
+   THEME: Modern — crisp paper white, ink black, deep navy accent.
+   Square corners, hairline borders, no shadows, square product photos,
+   underline tabs, uppercase buttons. Same layout, completely different feel.
+   ===================================================================== */
+:root{
+  --bg:#f4f4f1; --card:#ffffff; --ink:#0e0e0e; --muted:#6a6a66; --line:#d9d9d3;
+  --accent:#1d3557; --onacc:#ffffff; --gold:#1d3557;
+  --font-display:'Space Grotesk',system-ui,sans-serif;
+  --font-body:Inter,system-ui,sans-serif;
+  --h-weight:600; --h-track:-.02em;
+  --label-track:.2em;
+  --hero-title-size:clamp(40px,9vw,88px);
+  --btn-size:12px; --btn-weight:600; --btn-case:uppercase; --btn-track:.14em; --btn-pad:14px 28px;
+  --r-card:0px; --r-hero:0px; --r-panel:0px; --r-btn:0px; --r-pill:0px; --r-input:0px; --r-gal:0px; --r-thumb:0px; --r-small:0px;
+  --shadow:none; --shadow-hover:none; --shadow-lg:none;
+  --card-border:1px solid var(--ink);
+  --panel-border:1px solid var(--ink);
+  --card-ratio:1/1; --card-lift:0px;
+  --grid-min:150px; --grid-min-lg:250px; --grid-gap:12px; --grid-gap-lg:18px; --card-w-car:250px;
+  --hero-h:480px; --hero-items:center; --hero-pad:40px;
+  --hero-overlay:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,0) 70%);
+  --hero-in:560px;
+  --tab-on-bg:transparent; --tab-on-ink:var(--ink);
+  --header-bg:var(--bg); --blur:0px;
+  --dur:.15s;
+  --tint-mix:55;
+  --ok-bg:#d7e8dc; --warn-bg:#f0e1c2; --bad-bg:#f0d0cc;
+  --sold-bg:#0e0e0e;
+}
+:root[data-mode=dark]{
+  --bg:#0f0f0f; --card:#171717; --ink:#f2f2ee; --muted:#9a9a95; --line:#2c2c2a;
+  --accent:#8fb3e8; --onacc:#0a1424; --gold:#8fb3e8;
+  --card-border:1px solid #f2f2ee; --panel-border:1px solid #f2f2ee;
+  --sold-bg:#f2f2ee; --sold-ink:#0e0e0e;
+}
+
+/* ---- restyle existing elements ---- */
+.hero h1{text-transform:uppercase;line-height:.95}
+.hero .btn.light{background:#fff;color:#0e0e0e}
+.card:hover{border-color:var(--accent);outline:1px solid var(--accent)}
+.card .cb{border-top:1px solid var(--line)}
+.price{color:var(--ink)}
+.tab{border:0;border-bottom:2px solid transparent;padding:10px 4px;margin:0 16px;background:none;text-transform:uppercase;letter-spacing:.16em;font-size:12px;font-weight:600}
+.tab.on{background:none;border-bottom-color:var(--ink)}
+.chip.on,.dot.on{box-shadow:none}
+.sec{border-bottom:1px solid var(--ink);padding-bottom:10px}
+.sec h2{font-size:26px;text-transform:uppercase;letter-spacing:.04em}
+.sec h2::before{content:"";display:inline-block;width:10px;height:10px;background:var(--accent);margin-right:12px}
+.thumbs img.on{border-color:var(--accent)}
+
+/* ---- NEW decorative elements, added by the theme only ---- */
+.deco-bg{display:block;opacity:.5;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:56px 56px}
+.deco-hero-a{display:block;left:var(--hero-pad);top:var(--hero-pad);width:72px;height:8px;background:var(--accent)}
+.deco-hero-b{display:block;right:var(--hero-pad);top:calc(var(--hero-pad) - 6px)}
+.deco-hero-b::after{content:"NEW SEASON";font:600 11px var(--font-body);letter-spacing:.34em;color:var(--hero-ink)}
+.deco-card{display:block;top:0;right:0;width:16px;height:16px;background:var(--accent)}
+.deco-pdp{display:block;top:0;left:0;width:100%;height:6px;background:var(--accent)}
+.deco-footer{display:block;width:56px;height:4px;margin-bottom:20px;background:var(--accent)}

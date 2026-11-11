@@ -1,0 +1,99 @@
+---
+import NotFound from '../components/NotFound.astro';
+import ProductCard from '../components/ProductCard.astro';
+import Base from '../layouts/Base.astro';
+import { BRAND, PAGE_CACHE, SITE_URL, configured } from '../lib/config.ts';
+import { DEFAULT_SETTINGS, getDb, imgUrl, loadHome, type HomeData } from '../lib/data.ts';
+import { safeHref } from '../lib/format.ts';
+import { orgLd, siteLd } from '../lib/seo.ts';
+
+let home: HomeData | null = null;
+if (configured) {
+  try {
+    home = await loadHome(getDb());
+  } catch (err) {
+    console.error('home load failed', err);
+  }
+}
+if (!home) Astro.response.status = 503;
+Astro.response.headers.set('Cache-Control', home ? PAGE_CACHE : 'no-store');
+
+const settings = home?.settings ?? DEFAULT_SETTINGS;
+const origin = SITE_URL || Astro.url.origin;
+const hero = settings.hero;
+const slides = (hero.slides?.length ? hero.slides : [hero]).map((s: any) => ({
+  heading: String(s.heading ?? ''),
+  text: String(s.text ?? ''),
+  image: s.image_path ? imgUrl(s.image_path) : '/placeholder.svg',
+  cta: String(s.cta || 'Explore the collection'),
+  href: safeHref(s.href, '/shop'),
+}));
+const cats = home?.cats ?? [];
+const description = settings.hero.text || 'Handcrafted textiles and fine jewellery.';
+---
+<Base
+  title={`${BRAND} — Textiles & Jewellery`}
+  description={description}
+  page="home"
+  settings={settings}
+  jsonLd={[orgLd(origin), siteLd(origin)]}
+>
+  {!home ? (
+    <NotFound error />
+  ) : (
+    <>
+      <div class="hs">
+        <div class="hs-track">
+          {slides.map((s, i) => (
+            <div class="hero">
+              <img class="hero-img" src={s.image} alt="" width="1600" height="900" fetchpriority={i === 0 ? 'high' : 'auto'} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />
+              <i class="deco deco-hero-a" aria-hidden="true"></i>
+              <i class="deco deco-hero-b" aria-hidden="true"></i>
+              <div class="hero-in">
+                {i === 0 ? <h1>{s.heading}</h1> : <p class="hero-h">{s.heading}</p>}
+                <p>{s.text}</p>
+                <a class="btn light" href={s.href}>{s.cta}</a>
+              </div>
+            </div>
+          ))}
+        </div>
+        {slides.length > 1 && (
+          <>
+            <button type="button" class="arw l" data-hs="-1" aria-label="Previous">‹</button>
+            <button type="button" class="arw r" data-hs="1" aria-label="Next">›</button>
+            <div class="hs-dots">{slides.map((_, i) => <i class={i === 0 ? 'on' : ''}></i>)}</div>
+          </>
+        )}
+      </div>
+
+      {cats.length > 0 && (
+        <>
+          <div class="tabs">
+            {cats.map((c, i) => (
+              <a class:list={['tab', { on: i === 0 }]} href={`/${c.slug}`} data-cat={c.slug}>{c.name}</a>
+            ))}
+          </div>
+          {cats.map((c, i) => (
+            <div class="grid" data-panel={c.slug} hidden={i !== 0}>
+              {c.products.map((p) => <ProductCard p={p} />)}
+              {c.products.length === 0 && <div class="empty">Nothing here yet.</div>}
+            </div>
+          ))}
+        </>
+      )}
+
+      {home.carousel.products.length > 0 && (
+        <>
+          <div class="sec"><h2>{home.carousel.title}</h2><span>Swipe →</span></div>
+          <div class="car">{home.carousel.products.map((p) => <ProductCard p={p} />)}</div>
+        </>
+      )}
+      {home.featured.products.length > 0 && (
+        <>
+          <div class="sec"><h2>{home.featured.title}</h2></div>
+          <div class="grid">{home.featured.products.map((p) => <ProductCard p={p} />)}</div>
+        </>
+      )}
+    </>
+  )}
+</Base>

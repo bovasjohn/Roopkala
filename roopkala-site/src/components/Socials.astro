@@ -1,0 +1,19 @@
+---
+// Social icons. Only platforms with a real https:// link are shown, and only where the admin switched them on.
+import { PLATS } from '../lib/config.ts';
+
+interface Props {
+  social: Record<string, any>;
+  where: 'header' | 'footer' | 'about';
+}
+const { social, where } = Astro.props;
+const show = Boolean(social?.show_in?.[where]);
+const list = PLATS.filter((p) => /^https:\/\//.test(String(social?.[p.k] ?? '')));
+---
+{show && list.length > 0 && (
+  <span class="socs">
+    {list.map((p) => (
+      <a class="soc" href={social[p.k]} target="_blank" rel="noopener noreferrer" aria-label={p.n} title={p.n}>{p.s}</a>
+    ))}
+  </span>
+)}

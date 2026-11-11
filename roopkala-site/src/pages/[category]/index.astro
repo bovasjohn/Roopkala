@@ -1,0 +1,60 @@
+---
+import NotFound from '../../components/NotFound.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import Base from '../../layouts/Base.astro';
+import { BRAND, PAGE_CACHE, SITE_URL, configured } from '../../lib/config.ts';
+import { DEFAULT_SETTINGS, getCategories, getDb, getSettings, listProducts, type Product } from '../../lib/data.ts';
+import { slugOk } from '../../lib/format.ts';
+import { breadcrumbLd } from '../../lib/seo.ts';
+
+const { category = '' } = Astro.params;
+let settings = DEFAULT_SETTINGS;
+let cats: { id: string; name: string; slug: string }[] = [];
+let products: Product[] = [];
+let status: 'ok' | 'missing' | 'error' = 'ok';
+
+if (!configured) status = 'error';
+else if (!slugOk(category)) status = 'missing';
+else {
+  try {
+    const db = getDb();
+    settings = await getSettings(db);
+    cats = await getCategories(db);
+    const cat = cats.find((c) => c.slug === category);
+    if (!cat) status = 'missing';
+    else products = (await listProducts(db, settings.general.low_stock)).filter((p) => p.category?.id === cat.id);
+  } catch (err) {
+    console.error('category load failed', err);
+    status = 'error';
+  }
+}
+if (status === 'missing') Astro.response.status = 404;
+if (status === 'error') Astro.response.status = 503;
+Astro.response.headers.set('Cache-Control', status === 'ok' ? PAGE_CACHE : 'no-store');
+
+const current = cats.find((c) => c.slug === category);
+const origin = SITE_URL || Astro.url.origin;
+---
+<Base
+  title={current ? `${current.name} | ${BRAND}` : `Not found | ${BRAND}`}
+  description={current ? `Shop ${current.name.toLowerCase()} at ${BRAND}.` : ''}
+  page="shop"
+  settings={settings}
+  jsonLd={current ? [breadcrumbLd(origin, [{ name: 'Home', path: '/' }, { name: current.name, path: `/${current.slug}` }])] : []}
+>
+  {status !== 'ok' ? (
+    <NotFound error={status === 'error'} />
+  ) : (
+    <>
+      <div class="sec"><h1 style="font-size:32px">{current?.name}</h1></div>
+      <div class="tabs" style="margin-top:0">
+        <a class="tab" href="/shop">All</a>
+        {cats.map((c) => <a class:list={['tab', { on: c.slug === category }]} href={`/${c.slug}`}>{c.name}</a>)}
+      </div>
+      <div class="grid">
+        {products.map((p) => <ProductCard p={p} />)}
+        {products.length === 0 && <div class="empty">Nothing here yet.</div>}
+      </div>
+    </>
+  )}
+</Base>

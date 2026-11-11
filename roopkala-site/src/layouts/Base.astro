@@ -1,0 +1,149 @@
+---
+// Page shell shared by every page. All look-and-feel comes from /base.css plus the chosen theme file.
+import Socials from '../components/Socials.astro';
+import { BRAND, BRAND_BY, SITE_URL, THEMES, THEME_SCRIPTS, VERSION } from '../lib/config.ts';
+import type { Settings } from '../lib/data.ts';
+import { imgUrl } from '../lib/data.ts';
+import { ldString } from '../lib/seo.ts';
+import { accentStyle, themeId } from '../lib/theme.ts';
+
+interface Props {
+  title: string;
+  description?: string;
+  path?: string;
+  image?: string;
+  ogType?: string;
+  jsonLd?: object[];
+  page?: string;
+  noindex?: boolean;
+  settings: Settings;
+}
+const {
+  title,
+  description = '',
+  path = Astro.url.pathname,
+  image,
+  ogType = 'website',
+  jsonLd = [],
+  page = 'home',
+  noindex = false,
+  settings,
+} = Astro.props;
+
+const origin = SITE_URL || Astro.url.origin;
+const canonical = origin + path;
+const wanted = Astro.url.searchParams.get('theme_preview') ?? '';
+const previewing = THEMES.includes(wanted);
+const theme = previewing ? wanted : themeId(settings.appearance.theme);
+const accent = accentStyle(settings.appearance.accent);
+const ga = /^G-[A-Z0-9]+$/i.test(settings.general.ga_id) ? settings.general.ga_id : '';
+const hasAbout = settings.about.enabled;
+const logo = settings.general.logo_path ? imgUrl(settings.general.logo_path) : '';
+const shopActive = page === 'shop' || page === 'product';
+---
+<!doctype html>
+<html lang="en" data-skin={theme} data-fit={settings.appearance.fit === 'whole' ? 'whole' : 'fill'} style={accent || undefined}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={canonical} />
+    {(noindex || previewing) && <meta name="robots" content="noindex" />}
+    <meta property="og:site_name" content={BRAND} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={canonical} />
+    {image && <meta property="og:image" content={image} />}
+    <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#7a1f2b" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&display=swap" />
+    <link rel="stylesheet" href={`/base.css?v=${VERSION}`} />
+    <link rel="stylesheet" href={`/themes/${theme}.css?v=${VERSION}`} />
+    <script is:inline>
+      try {
+        var m = localStorage.getItem('rk_theme');
+        if (m !== 'dark' && m !== 'light') m = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.mode = m;
+      } catch (e) { document.documentElement.dataset.mode = 'light'; }
+    </script>
+    {jsonLd.map((ld) => <script type="application/ld+json" set:html={ldString(ld)} />)}
+  </head>
+  <body data-page={page} data-ga={ga}>
+    <div class="deco deco-bg" aria-hidden="true"></div>
+    <header>
+      <a href="/" class:list={['logo', { 'has-img': Boolean(logo) }]} aria-label={BRAND}>
+        {logo ? <img class="logo-img" src={logo} alt={BRAND} height="34" /> : <><span class="logo-name">{BRAND}</span><span class="logo-by">by {BRAND_BY}</span></>}
+      </a>
+      <div class="icons">
+        <Socials social={settings.social} where="header" />
+        <button class="ib" id="theme" type="button" aria-label="Switch between light and dark">
+          <svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" /></svg>
+        </button>
+        <a class="ib" href="/account" aria-label="Sign in or your account">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></svg>
+        </a>
+        <a class="ib" href="/cart" aria-label="Shopping bag">
+          <svg viewBox="0 0 24 24"><path d="M6 8h12l1 12H5L6 8zM9 8a3 3 0 016 0" /></svg>
+          <span class="badge" id="cb" style="display:none">0</span>
+        </a>
+      </div>
+    </header>
+
+    <main><slot /></main>
+
+    <footer>
+      <i class="deco deco-footer" aria-hidden="true"></i>
+      <div class:list={['logo', { 'has-img': Boolean(logo) }]}>{logo ? <img class="logo-img" src={logo} alt={BRAND} height="30" loading="lazy" /> : <><span class="logo-name">{BRAND}</span><span class="logo-by">by {BRAND_BY}</span></>}</div>
+      <div class="tagline">Textiles · Jewellery</div>
+      <div class="links">
+        {hasAbout && <a href="/about">About</a>}
+        <a href="/shop">Shop</a>
+      </div>
+      <Socials social={settings.social} where="footer" />
+      <div class="note">© {new Date().getFullYear()} {BRAND}</div>
+    </footer>
+
+    <nav class="bnav" aria-label="Main">
+      <a href="/" class:list={[{ on: page === 'home' }]}>
+        <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 01-1 1H4a1 1 0 01-1-1z" /></svg>Home
+      </a>
+      <a href="/shop" class:list={[{ on: shopActive }]}>
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2" /><rect x="14" y="3" width="7" height="7" rx="2" /><rect x="3" y="14" width="7" height="7" rx="2" /><rect x="14" y="14" width="7" height="7" rx="2" /></svg>Shop
+      </a>
+      <a href="/cart" class:list={[{ on: page === 'cart' }]}>
+        <svg viewBox="0 0 24 24"><path d="M6 8h12l1 12H5L6 8zM9 8a3 3 0 016 0" /></svg>Bag
+      </a>
+      <a href="/account" class:list={[{ on: page === 'account' }]}>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" /></svg>Account
+      </a>
+      {hasAbout && (
+        <a href="/about" class:list={[{ on: page === 'about' }]}>
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.01" /></svg>About
+        </a>
+      )}
+    </nav>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    {ga && (
+      <div class="ck" id="ck" hidden>
+        <span>We use cookies for analytics to improve the shop.</span>
+        <span class="row2">
+          <button type="button" class="btn sm ghost" data-consent="no">Decline</button>
+          <button type="button" class="btn sm" data-consent="yes">Accept</button>
+        </span>
+      </div>
+    )}
+    <script>
+      import '../scripts/ui.ts';
+    </script>
+    {THEME_SCRIPTS.includes(theme) && <script is:inline defer src={`/themes/${theme}.js`}></script>}
+  </body>
+</html>

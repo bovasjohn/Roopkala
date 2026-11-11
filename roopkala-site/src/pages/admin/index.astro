@@ -1,0 +1,13 @@
+---
+import Base from '../../layouts/Base.astro';
+import { BRAND, SUPABASE_ANON_KEY, SUPABASE_URL } from '../../lib/config.ts';
+import { DEFAULT_SETTINGS } from '../../lib/data.ts';
+
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+<Base title={`Admin | ${BRAND}`} noindex page="admin" settings={DEFAULT_SETTINGS}>
+  <div id="admin-root" data-url={SUPABASE_URL} data-key={SUPABASE_ANON_KEY}><p class="empty">Loading…</p></div>
+  <script>
+    import '../../scripts/admin.ts';
+  </script>
+</Base>

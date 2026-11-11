@@ -1,0 +1,11 @@
+---
+interface Props { error?: boolean }
+const { error = false } = Astro.props;
+---
+<div class="empty">
+  <h2 style="font-size:32px">{error ? "We'll be right back" : 'This page is no longer available'}</h2>
+  <p style="margin:10px 0 20px">
+    {error ? 'The shop is being updated. Please try again in a moment.' : 'The piece or page you are looking for may have moved.'}
+  </p>
+  <a class="btn" href="/shop">Browse the shop</a>
+</div>

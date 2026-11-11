@@ -1,0 +1,22 @@
+---
+import type { Product } from '../lib/data.ts';
+import { inr } from '../lib/format.ts';
+
+interface Props { p: Product }
+const { p } = Astro.props;
+---
+<a class:list={['card', { so: p.status === 'out' }]} href={p.url}>
+  <div class="ph">
+    <img src={p.cover?.thumb ?? '/placeholder.svg'} alt={p.name} width="480" height="480" loading="lazy" decoding="async" />
+    <i class="deco deco-card" aria-hidden="true"></i>
+    {p.status === 'out' && <span class="sold">SOLD OUT</span>}
+  </div>
+  <div class="cb">
+    <div class="cat">{p.categoryName}</div>
+    <h3>{p.name}</h3>
+    <div class="row">
+      <span class="price">{inr(p.price)}</span>
+      {p.status === 'low' ? <span class="pill low">Few left</span> : <span class="code">{p.code}</span>}
+    </div>
+  </div>
+</a>

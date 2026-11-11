@@ -1,0 +1,63 @@
+---
+import NotFound from '../components/NotFound.astro';
+import ProductCard from '../components/ProductCard.astro';
+import Base from '../layouts/Base.astro';
+import { BRAND, PAGE_CACHE, configured } from '../lib/config.ts';
+import { DEFAULT_SETTINGS, getCategories, getDb, getSettings, listProducts, type Product } from '../lib/data.ts';
+import { SORTS, filterProducts, parseShopQuery } from '../lib/shopFilter.ts';
+
+const { q, sort } = parseShopQuery(Astro.url.searchParams);
+const filtered = q !== '' || sort !== 'new';
+
+let settings = DEFAULT_SETTINGS;
+let products: Product[] = [];
+let cats: { name: string; slug: string }[] = [];
+let failed = !configured;
+if (configured) {
+  try {
+    const db = getDb();
+    settings = await getSettings(db);
+    [cats, products] = await Promise.all([getCategories(db), listProducts(db, settings.general.low_stock)]);
+  } catch (err) {
+    console.error('shop load failed', err);
+    failed = true;
+  }
+}
+if (failed) Astro.response.status = 503;
+Astro.response.headers.set('Cache-Control', failed ? 'no-store' : PAGE_CACHE);
+const shown = filterProducts(products, q, sort);
+---
+<Base
+  title={`Shop all | ${BRAND}`}
+  description="Browse every textile and jewellery piece."
+  page="shop"
+  path="/shop"
+  noindex={filtered}
+  settings={settings}
+>
+  {failed ? (
+    <NotFound error />
+  ) : (
+    <>
+      <div class="sec"><h2>All pieces</h2></div>
+      <form class="shopbar" action="/shop" method="get" role="search">
+        <input type="search" name="q" value={q} placeholder="Search by name or code" maxlength="60" aria-label="Search the shop" />
+        <select name="sort" aria-label="Sort">
+          {SORTS.map((s) => <option value={s.id} selected={s.id === sort}>{s.label}</option>)}
+        </select>
+        <button class="btn sm" type="submit">Search</button>
+      </form>
+      <div class="tabs" style="margin-top:0">
+        <a class="tab on" href="/shop">All</a>
+        {cats.map((c) => <a class="tab" href={`/${c.slug}`}>{c.name}</a>)}
+      </div>
+      {q && <p class="shop-note">{shown.length} {shown.length === 1 ? 'result' : 'results'} for “{q}” · <a href="/shop">Clear</a></p>}
+      <div class="grid">
+        {shown.map((p) => <ProductCard p={p} />)}
+        {shown.length === 0 && (
+          <div class="empty">{q ? <>No pieces match “{q}”. <a href="/shop">See everything</a>.</> : 'Nothing here yet.'}</div>
+        )}
+      </div>
+    </>
+  )}
+</Base>

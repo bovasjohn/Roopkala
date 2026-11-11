@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Lora:wght@400;500;600&display=swap');
+/* =====================================================================
+   THEME: Heritage — parchment, deep maroon, antique gold.
+   Ornamental: gold frames, corner flourishes, a lattice (jaali) backdrop,
+   centred headings. Ornament graphics live in themes/heritage/*.svg.
+   ===================================================================== */
+:root{
+  --bg:#f6ecdc; --card:#fdf7ec; --ink:#3b1519; --muted:#86665f; --line:#e3cfae;
+  --accent:#7b1e2b; --onacc:#fff6e8; --gold:#b8903f;
+  --font-display:'Playfair Display',Georgia,serif;
+  --font-body:Lora,Georgia,serif;
+  --h-weight:600; --h-track:.01em;
+  --logo-align:center;
+  --label-track:.2em;
+  --btn-size:13px; --btn-weight:600; --btn-case:uppercase; --btn-track:.12em; --btn-pad:13px 28px;
+  --r-card:10px; --r-hero:6px; --r-panel:10px; --r-btn:4px; --r-pill:4px; --r-input:6px; --r-gal:8px; --r-thumb:6px; --r-small:6px;
+  --card-border:1px solid var(--gold);
+  --panel-border:1px solid var(--gold);
+  --shadow:0 10px 28px rgba(90,40,30,.12); --shadow-hover:0 14px 34px rgba(90,40,30,.2);
+  --shadow-lg:0 24px 56px rgba(70,25,25,.28);
+  --card-lift:-3px;
+  --hero-h:460px; --hero-items:center; --hero-justify:center; --hero-align:center; --hero-in:520px;
+  --hero-overlay:linear-gradient(to top,rgba(59,21,25,.82),rgba(59,21,25,.25) 75%);
+  --hero-ink:#fff6e8;
+  --tab-on-bg:var(--accent); --tab-on-ink:var(--onacc);
+  --img-filter:saturate(.92) sepia(.06);
+  --tint-mix:85;
+  --header-bg:color-mix(in srgb,var(--bg) 92%,transparent);
+  --header-border:1px solid var(--gold);
+  --ok-bg:#dfe6c8; --ok-ink:#33441a; --warn-bg:#f1dcaa; --warn-ink:#6b4a0c; --bad-bg:#edc6c0; --bad-ink:#6e1f1f;
+  --sold-bg:#3b1519; --sold-ink:#f6e3b4;
+}
+:root[data-mode=dark]{
+  --bg:#1a0d0f; --card:#26151a; --ink:#f4e6cf; --muted:#b79f8a; --line:#4a2d2f;
+  --accent:#d8ae62; --onacc:#2a1417; --gold:#c4a052;
+  --shadow:0 10px 28px rgba(0,0,0,.5); --shadow-hover:0 14px 34px rgba(0,0,0,.65);
+  --hero-overlay:linear-gradient(to top,rgba(20,8,10,.88),rgba(20,8,10,.3) 75%);
+  --sold-bg:#f4e6cf; --sold-ink:#3b1519;
+  --ok-bg:#2f3a1d; --ok-ink:#d3e3aa; --warn-bg:#4d3a14; --warn-ink:#f1dcaa; --bad-bg:#4d1d1d; --bad-ink:#f2c6c0;
+}
+
+/* ---- restyle existing elements ---- */
+.hero .btn.light{background:var(--gold);color:#2a1417}
+.card::after{content:"";position:absolute;inset:6px;border:1px solid color-mix(in srgb,var(--gold) 55%,transparent);border-radius:5px;pointer-events:none;z-index:2}
+.cb{text-align:center}
+.cb .row{justify-content:center;gap:10px}
+.price{color:var(--accent)}
+.tabs{gap:0}
+.tab{border-radius:0;border-color:var(--gold);margin-left:-1px;text-transform:uppercase;letter-spacing:.14em;font-size:12px}
+.tab:first-child{border-radius:4px 0 0 4px}.tab:last-child{border-radius:0 4px 4px 0}
+body:not([data-page=admin]) .sec{flex-direction:column;align-items:center;gap:2px}
+body:not([data-page=admin]) .sec h2::before,
+body:not([data-page=admin]) .sec h2::after{content:"";display:inline-block;width:46px;height:1px;background:var(--gold);vertical-align:middle;margin:0 16px}
+.panel h1{text-align:center}
+.panel .cat{text-align:center}
+.panel .price{display:block;text-align:center}
+.thumbs img.on{border-color:var(--gold)}
+.logo{text-align:center}
+
+/* ---- NEW decorative elements, added by the theme only ---- */
+.deco-bg{display:block;opacity:.07;background:url(heritage/jaali.svg) 0 0/64px 64px repeat}
+.deco-hero-a{display:block;inset:14px;border:1px solid rgba(232,200,130,.75);border-radius:3px}
+.deco-hero-b{display:block;top:26px;left:50%;width:120px;height:18px;transform:translateX(-50%);background:url(heritage/divider.svg) center/contain no-repeat}
+.deco-card{display:block;top:8px;left:8px;width:30px;height:30px;background:url(heritage/corner.svg) center/contain no-repeat}
+.deco-pdp{display:block;top:10px;left:50%;width:110px;height:16px;transform:translateX(-50%);background:url(heritage/divider.svg) center/contain no-repeat}
+.panel .cat{padding-top:18px}
+.deco-footer{display:block;width:140px;height:18px;margin-bottom:18px;background:url(heritage/divider.svg) center/contain no-repeat}

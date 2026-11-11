@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import { BRAND, SUPABASE_ANON_KEY, SUPABASE_URL, configured } from '../lib/config.ts';
+import { DEFAULT_SETTINGS, getDb, getSettings } from '../lib/data.ts';
+
+let settings = DEFAULT_SETTINGS;
+if (configured) {
+  try {
+    settings = await getSettings(getDb());
+  } catch (err) {
+    console.error('settings load failed', err);
+  }
+}
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+<Base title={`Account | ${BRAND}`} page="account" noindex settings={settings}>
+  <div id="account-root" data-url={SUPABASE_URL} data-key={SUPABASE_ANON_KEY}><p class="empty">Loading…</p></div>
+  <script>
+    import '../scripts/account.ts';
+  </script>
+</Base>
